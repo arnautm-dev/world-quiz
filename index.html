@@ -188,6 +188,12 @@ button:disabled {
   color: #a52323;
 }
 
+.feedback.partial {
+  display: block;
+  background: #fff4e5;
+  color: #b54708;
+}
+
 .decision-buttons {
   display: none;
   gap: 8px;
@@ -1095,6 +1101,8 @@ const excludeSouthAmerica = document.getElementById("excludeSouthAmerica");
 const onlyImportantCountries = document.getElementById("onlyImportantCountries");
 const restartButton = document.getElementById("restart");
 
+const mapPreferencesStorageKey = "world-capitals-quiz-map-preferences";
+
 
 /* =========================================================
    TEXT NORMALIZATION
@@ -1108,6 +1116,75 @@ function norm(value) {
     .replace(/[’']/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+
+function countMatchingLetters(answer, expected) {
+  const expectedLetters = expected.split("");
+  let matchingLetters = 0;
+
+  for (const letter of answer) {
+    const matchingIndex = expectedLetters.indexOf(letter);
+
+    if (matchingIndex !== -1) {
+      matchingLetters++;
+      expectedLetters.splice(matchingIndex, 1);
+    }
+  }
+
+  return matchingLetters;
+}
+
+
+function saveMapPreferences() {
+  const preferences = {
+    excludeAfrica: excludeAfrica.checked,
+    excludeIslands: excludeIslands.checked,
+    excludeMiddleEast: excludeMiddleEast.checked,
+    excludeAsia: excludeAsia.checked,
+    excludeEurope: excludeEurope.checked,
+    excludeNorthAmerica: excludeNorthAmerica.checked,
+    excludeSouthAmerica: excludeSouthAmerica.checked,
+    onlyImportantCountries: onlyImportantCountries.checked
+  };
+
+  localStorage.setItem(
+    mapPreferencesStorageKey,
+    JSON.stringify(preferences)
+  );
+}
+
+
+function loadMapPreferences() {
+  const savedPreferences = localStorage.getItem(
+    mapPreferencesStorageKey
+  );
+
+  if (!savedPreferences) {
+    return;
+  }
+
+  try {
+    const preferences = JSON.parse(savedPreferences);
+
+    excludeAfrica.checked = preferences.excludeAfrica === true;
+    excludeIslands.checked = preferences.excludeIslands === true;
+    excludeMiddleEast.checked = preferences.excludeMiddleEast === true;
+    excludeAsia.checked = preferences.excludeAsia === true;
+    excludeEurope.checked = preferences.excludeEurope === true;
+    excludeNorthAmerica.checked = preferences.excludeNorthAmerica === true;
+    excludeSouthAmerica.checked = preferences.excludeSouthAmerica === true;
+    onlyImportantCountries.checked =
+      preferences.onlyImportantCountries === true;
+
+    if (onlyImportantCountries.checked) {
+      regularFilters.forEach(filter => {
+        filter.checked = false;
+      });
+    }
+  } catch (error) {
+    localStorage.removeItem(mapPreferencesStorageKey);
+  }
 }
 
 
@@ -1506,15 +1583,31 @@ function checkCapitalAnswer() {
     scheduleNextQuestion(1000);
 
   } else {
+    const matchingLetters = countMatchingLetters(
+      answerNormalized,
+      expectedNormalized
+    );
 
-    streak = 0;
-    updateStats();
+    if (matchingLetters <= 2) {
+      streak = 0;
+      updateStats();
+
+      showFeedback(
+        "Incorrect. The correct capital is " +
+        currentCountry.capital + ".",
+        "wrong"
+      );
+
+      decisionButtons.style.display = "none";
+      scheduleNextQuestion(1000);
+      return;
+    }
 
     showFeedback(
       "Not quite. The correct capital is " +
       currentCountry.capital +
       ".",
-      "wrong"
+      "partial"
     );
 
     /*
@@ -1899,6 +1992,7 @@ function handleFilterChange(event) {
     onlyImportantCountries.checked = false;
   }
 
+  saveMapPreferences();
   startQuiz();
 }
 
@@ -1919,6 +2013,7 @@ restartButton.addEventListener(
    START
 ========================================================= */
 
+loadMapPreferences();
 loadGeoJSON();
 
 </script>
