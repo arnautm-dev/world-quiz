@@ -1066,6 +1066,9 @@ let countriesCorrect = 0;
 let capitalsCorrect = 0;
 
 let advanceTimer = null;
+let audioContext = null;
+let mapResponseSoundPlayed = false;
+let capitalResponseSoundPlayed = false;
 
 
 /* =========================================================
@@ -1105,7 +1108,7 @@ const mapPreferencesStorageKey = "world-capitals-quiz-map-preferences";
 
 
 /* =========================================================
-   TEXT NORMALIZATION
+    TEXT NORMALIZATION
 ========================================================= */
 
 function norm(value) {
@@ -1189,7 +1192,7 @@ function loadMapPreferences() {
 
 
 /* =========================================================
-   COUNTRY NAME RESOLUTION
+    COUNTRY NAME RESOLUTION
 ========================================================= */
 
 function canonicalName(value) {
@@ -1280,7 +1283,7 @@ function getFeatureCountryName(feature) {
 
 
 /* =========================================================
-   EXCLUSIONS
+    EXCLUSIONS
 ========================================================= */
 
 function isCountryExcluded(countryName) {
@@ -1328,7 +1331,7 @@ function getAvailableCountries() {
 
 
 /* =========================================================
-   SHUFFLE
+    SHUFFLE
 ========================================================= */
 
 function shuffle(array) {
@@ -1345,7 +1348,7 @@ function shuffle(array) {
 
 
 /* =========================================================
-   FEEDBACK
+    FEEDBACK
 ========================================================= */
 
 function showFeedback(message, type) {
@@ -1360,8 +1363,49 @@ function hideFeedback() {
 }
 
 
+function playResponseSound(responseType, responseKind) {
+  const soundAlreadyPlayed = responseKind === "map"
+    ? mapResponseSoundPlayed
+    : capitalResponseSoundPlayed;
+
+  if (soundAlreadyPlayed) {
+    return;
+  }
+
+  if (responseKind === "map") {
+    mapResponseSoundPlayed = true;
+  } else {
+    capitalResponseSoundPlayed = true;
+  }
+
+  audioContext ||= new AudioContext();
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  const now = audioContext.currentTime;
+  const isCorrect = responseType === "correct";
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(isCorrect ? 660 : 220, now);
+  oscillator.frequency.setValueAtTime(isCorrect ? 880 : 160, now + 0.12);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.22);
+}
+
+
 /* =========================================================
-   ADVANCE TIMER
+    ADVANCE TIMER
 ========================================================= */
 
 function clearAdvanceTimer() {
@@ -1387,7 +1431,7 @@ function scheduleNextQuestion(delay) {
 
 
 /* =========================================================
-   MAP STYLING
+    MAP STYLING
 ========================================================= */
 
 function resetMapStyles() {
@@ -1417,7 +1461,7 @@ function setCountryStyle(layer, color) {
 
 
 /* =========================================================
-   ENABLE CAPITAL
+    ENABLE CAPITAL
 ========================================================= */
 
 function enableCapital() {
@@ -1429,7 +1473,7 @@ function enableCapital() {
 
 
 /* =========================================================
-   COUNTRY CLICK
+    COUNTRY CLICK
 ========================================================= */
 
 function handleCountryClick(layer) {
@@ -1485,6 +1529,7 @@ function handleCountryClick(layer) {
   } else {
 
     setCountryStyle(layer, "#d64545");
+    playResponseSound("wrong", "map");
 
     /*
       WRONG MAP CLICK:
@@ -1512,7 +1557,7 @@ function handleCountryClick(layer) {
 
 
 /* =========================================================
-   CAPITAL CHECK
+    CAPITAL CHECK
 ========================================================= */
 
 function checkCapitalAnswer() {
@@ -1563,6 +1608,8 @@ function checkCapitalAnswer() {
 
   if (isCorrect) {
 
+    playResponseSound("correct", "capital");
+
     score += 20;
     capitalsCorrect++;
     streak++;
@@ -1589,6 +1636,8 @@ function checkCapitalAnswer() {
     );
 
     if (matchingLetters <= 2) {
+      playResponseSound("wrong", "capital");
+
       streak = 0;
       updateStats();
 
@@ -1624,7 +1673,7 @@ function checkCapitalAnswer() {
 
 
 /* =========================================================
-   MARK CAPITAL AS CORRECT
+    MARK CAPITAL AS CORRECT
 ========================================================= */
 
 function acceptCapitalAnyway() {
@@ -1636,6 +1685,8 @@ function acceptCapitalAnyway() {
   if (decisionButtons.style.display === "none") {
     return;
   }
+
+  playResponseSound("correct", "capital");
 
   capitalsCorrect++;
   score += 8;
@@ -1655,7 +1706,7 @@ function acceptCapitalAnyway() {
 
 
 /* =========================================================
-   MARK CAPITAL AS WRONG
+    MARK CAPITAL AS WRONG
 ========================================================= */
 
 function markCapitalAsWrong() {
@@ -1667,6 +1718,8 @@ function markCapitalAsWrong() {
   if (decisionButtons.style.display === "none") {
     return;
   }
+
+  playResponseSound("wrong", "capital");
 
   streak = 0;
   updateStats();
@@ -1684,7 +1737,7 @@ function markCapitalAsWrong() {
 
 
 /* =========================================================
-   PASS COUNTRY
+    PASS COUNTRY
 ========================================================= */
 
 function passCountry() {
@@ -1709,7 +1762,7 @@ function passCountry() {
 
 
 /* =========================================================
-   UPDATE STATS
+    UPDATE STATS
 ========================================================= */
 
 function updateStats() {
@@ -1736,7 +1789,7 @@ function updateStats() {
 
 
 /* =========================================================
-   LOAD QUESTION
+    LOAD QUESTION
 ========================================================= */
 
 function loadQuestion() {
@@ -1787,6 +1840,8 @@ function loadQuestion() {
 
   mapAnswered = false;
   capitalAnswered = false;
+  mapResponseSoundPlayed = false;
+  capitalResponseSoundPlayed = false;
 
   countryNameEl.innerHTML =
     `<span class="flag">${flagEmoji[currentCountry.name] || "🌍"}</span>` +
