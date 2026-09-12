@@ -298,7 +298,8 @@ const capitalAliases = {
   "reykjavik": "Reykjavík",
   "male": "Malé",
   "chisinau": "Chișinău",
-  "new delhi": "New Delhi"
+  "new delhi": "New Delhi",
+  "santiago de chile": "Santiago"
 };
 
 
@@ -375,44 +376,25 @@ const islandCountries = new Set([
   "Barbados",
   "Cabo Verde",
   "Comoros",
-  "Cuba",
-  "Cyprus",
   "Dominica",
-  "Dominican Republic",
   "Fiji",
   "Grenada",
-  "Haiti",
-  "Iceland",
-  "Indonesia",
-  "Ireland",
-  "Jamaica",
-  "Japan",
   "Kiribati",
-  "Madagascar",
-  "Maldives",
-  "Malta",
   "Marshall Islands",
   "Mauritius",
   "Micronesia",
   "Nauru",
-  "New Zealand",
   "Palau",
-  "Papua New Guinea",
-  "Philippines",
   "Saint Kitts and Nevis",
   "Saint Lucia",
   "Saint Vincent and the Grenadines",
   "Samoa",
   "Sao Tome and Principe",
-  "Seychelles",
-  "Singapore",
   "Solomon Islands",
-  "Sri Lanka",
   "Timor-Leste",
   "Tonga",
   "Trinidad and Tobago",
   "Tuvalu",
-  "United Kingdom",
   "Vanuatu"
 ]);
 
@@ -1307,6 +1289,23 @@ function passCountry() {
     UPDATE STATS
 ========================================================= */
 
+function updateScoreDisplay() {
+  scoreEl.textContent = score;
+  scoreEl.classList.remove("score-low", "score-high", "score-normal");
+  scoreEl.classList.add(
+    score > 0 && score < 5
+      ? "score-low"
+      : score > 8
+        ? "score-high"
+        : "score-normal"
+  );
+}
+
+function changeScore(newScore) {
+  score = Number(newScore);
+  updateScoreDisplay();
+}
+
 function updateStats() {
   const total = queue.length;
   const answeredCountries = Math.min(
@@ -1320,7 +1319,7 @@ function updateStats() {
       ) / 10
     : 0;
 
-  scoreEl.textContent = score;
+  updateScoreDisplay();
   streakEl.textContent = streak;
   countriesCorrectEl.textContent = countriesCorrect;
   capitalsCorrectEl.textContent = capitalsCorrect;

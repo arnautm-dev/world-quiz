@@ -216,6 +216,18 @@ button:disabled {
   font-weight: bold;
 }
 
+#score.score-low {
+  color: #a52323;
+}
+
+#score.score-high {
+  color: #26734d;
+}
+
+#score.score-normal {
+  color: #1D2939;
+}
+
 .stat-label {
   color: #667085;
   font-size: 13px;
