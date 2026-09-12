@@ -975,6 +975,21 @@ function setCountryStyle(layer, color) {
 }
 
 
+function highlightCorrectCountry() {
+  if (!geojsonLayer || !currentCountry) return;
+
+  geojsonLayer.eachLayer(layer => {
+    const layerCountry = canonicalName(
+      getFeatureCountryName(layer.feature)
+    );
+
+    if (layerCountry === currentCountry.name) {
+      setCountryStyle(layer, "#43a047");
+    }
+  });
+}
+
+
 /* =========================================================
     ENABLE CAPITAL
 ========================================================= */
@@ -1010,6 +1025,7 @@ function handleCountryClick(layer) {
 
   if (!clickedCountry) {
     setCountryStyle(layer, "#e3a008");
+    highlightCorrectCountry();
 
     showFeedback(
       "This map area could not be identified. The quiz will continue.",
@@ -1028,7 +1044,6 @@ function handleCountryClick(layer) {
     setCountryStyle(layer, "#43a047");
 
     countriesCorrect++;
-    score += 20;
     streak++;
 
     updateStats();
@@ -1044,6 +1059,7 @@ function handleCountryClick(layer) {
   } else {
 
     setCountryStyle(layer, "#d64545");
+    highlightCorrectCountry();
     playResponseSound("wrong", "map");
 
     /*
@@ -1112,6 +1128,17 @@ function checkCapitalAnswer() {
   let isCorrect =
     answerNormalized === expectedNormalized;
 
+  const expectedWords = expectedNormalized.split(" ");
+  if (
+    !isCorrect &&
+    expectedWords.length >= 2 &&
+    expectedWords.includes("city")
+  ) {
+    isCorrect =
+      answerNormalized ===
+      expectedWords.filter(word => word !== "city").join(" ");
+  }
+
   /*
     Check capital aliases as well.
   */
@@ -1125,7 +1152,6 @@ function checkCapitalAnswer() {
 
     playResponseSound("correct", "capital");
 
-    score += 20;
     capitalsCorrect++;
     streak++;
 
@@ -1204,7 +1230,6 @@ function acceptCapitalAnyway() {
   playResponseSound("correct", "capital");
 
   capitalsCorrect++;
-  score += 8;
   streak++;
 
   updateStats();
@@ -1261,6 +1286,8 @@ function passCountry() {
     return;
   }
 
+  playResponseSound("wrong", "map");
+
   /*
     Cancel any automatic advance that may be waiting.
   */
@@ -1281,12 +1308,22 @@ function passCountry() {
 ========================================================= */
 
 function updateStats() {
+  const total = queue.length;
+  const answeredCountries = Math.min(
+    questionIndex + (mapAnswered ? 1 : 0),
+    total
+  );
+
+  score = answeredCountries > 0
+    ? Math.round(
+        ((countriesCorrect + capitalsCorrect) / (answeredCountries * 2)) * 10 * 10
+      ) / 10
+    : 0;
+
   scoreEl.textContent = score;
   streakEl.textContent = streak;
   countriesCorrectEl.textContent = countriesCorrect;
   capitalsCorrectEl.textContent = capitalsCorrect;
-
-  const total = queue.length;
 
   if (total > 0) {
     const completed = Math.min(questionIndex, total);
