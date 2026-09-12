@@ -752,7 +752,11 @@ const aliases = {
   "sao tome and principe": "Sao Tome and Principe",
 
   "ivory coast": "Ivory Coast",
-  "côte d'ivoire": "Ivory Coast"
+  
+  "vatican": "Vatican City",
+  "holy see": "Vatican City",
+  "vatican city state": "Vatican City"
+  ,"vatican city state": "Vatican City"
 };
 
 
@@ -1131,6 +1135,40 @@ function canonicalName(value) {
 
   return raw;
 }
+
+
+/*
+  Console helper:
+  forceRequest("Serbia")
+*/
+function forceRequest(countryName) {
+  const canonicalCountryName = canonicalName(countryName);
+  const requestedCountry = countries.find(
+    country => country.name === canonicalCountryName
+  );
+
+  if (!requestedCountry) {
+    console.warn("Unknown country:", countryName);
+    return null;
+  }
+
+  clearAdvanceTimer();
+
+  const remainingCountries = queue
+    .slice(questionIndex + 1)
+    .filter(country => country.name !== requestedCountry.name);
+
+  queue = [requestedCountry, ...remainingCountries];
+  questionIndex = 0;
+  currentCountry = null;
+
+  loadQuestion();
+
+  console.info("Forced country request:", requestedCountry.name);
+  return requestedCountry;
+}
+
+window.forceRequest = forceRequest;
 
 
 /*
