@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz of Spain's provinces</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { min-width: 320px; }
+    main { width: min(1390px, calc(100% - 36px)); grid-template-columns: minmax(0, 930px) minmax(300px, 430px); }
+    .map-card { padding: 15px; }
+    #map { background: #dcecf7; }
+    .leaflet-container { font-family: Montserrat, Arial, sans-serif; }
+    .province { transition: fill .15s ease, filter .15s ease; cursor: pointer; }
+    .province:hover { fill: #78acd4; filter: brightness(1.04); }
+    .province.correct { fill: #43a047; }
+    .province.wrong { fill: #d64545; }
+    .province.answer { fill: #43a047; }
+    .province-label { fill: #173b67; font-size: 9px; font-weight: 700; pointer-events: none; text-anchor: middle; paint-order: stroke; stroke: rgba(255,255,255,.8); stroke-width: 3px; stroke-linejoin: round; }
+    .feedback.correct, .feedback.wrong { display: block; }
+    #nextProvince { width: 100%; margin-top: 12px; background: #667085; }
+    @media (max-width: 980px) {
+      main { grid-template-columns: 1fr; }
+      #map { height: 560px; }
+    }
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 930px); margin: 12px auto; }
+      header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quiz of Spain's provinces</h1>
+    <p>Find the province shown on the map.</p>
+  </header>
+
+  <main>
+    <section>
+      <div class="card map-card">
+        <div class="question">
+          <div class="question-title">Select this province on the map:</div>
+          <div id="provinceName" class="country-name"></div>
+        </div>
+        <div id="map" aria-label="Map of Spain's provinces"></div>
+        <div id="feedback" class="feedback"></div>
+        <button id="nextProvince">Pass province</button>
+      </div>
+      <div class="card section small">You get one attempt to select each province.</div>
+      <div class="card section small">©2026, <a href="https://arnautm-dev.netlify.app">arnautm-dev</a>. All rights reserved.</div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="card">
+        <h2>Progress</h2>
+        <div class="progress-wrapper">
+          <div class="progress-bar"><div id="progressFill"></div></div>
+          <div id="progressText">0 / 0</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div id="score" class="stat-number">0</div><div class="stat-label">Score / 10</div></div>
+          <div class="stat"><div id="streak" class="stat-number">0</div><div class="stat-label">Current streak</div></div>
+          <div class="stat"><div id="provincesCorrect" class="stat-number">0</div><div class="stat-label">Provinces correct</div></div>
+          <div class="stat"><div id="totalProvinces" class="stat-number">50</div><div class="stat-label">Total provinces</div></div>
+        </div>
+      </div>
+
+      <div class="card section">
+        <h2>How it works</h2>
+        <ol class="how-it-works">
+          <li>Read the province name.</li>
+          <li>Click it on the map.</li>
+          <li>Continue to the next question.</li>
+        </ol>
+      </div>
+
+      <div class="card section"><button id="restart">Restart quiz</button></div>
+    </aside>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const provinces = [
+      "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona", "Biscay", "Burgos",
+      "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", "Cuenca", "Gipuzkoa", "Girona",
+      "Granada", "Guadalajara", "Huelva", "Huesca", "Balearic Islands", "Jaén", "A Coruña", "La Rioja", "Las Palmas", "León",
+      "Lleida", "Lugo", "Madrid", "Málaga", "Murcia", "Navarre", "Ourense", "Palencia", "Pontevedra", "Salamanca",
+      "Santa Cruz de Tenerife", "Segovia", "Seville", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Zamora", "Zaragoza"
+    ];
+
+    const aliases = {
+      "alava": "Álava", "araba": "Álava", "araba alava": "Álava", "alicante": "Alicante", "alacant alicante": "Alicante", "almeria": "Almería", "asturias": "Asturias", "avila": "Ávila",
+      "barcelona": "Barcelona", "bizkaia": "Biscay", "bizkaia vizcaya": "Biscay", "vizcaya": "Biscay", "burgos": "Burgos", "caceres": "Cáceres", "cadiz": "Cádiz", "castellon": "Castellón", "castello castellon": "Castellón",
+      "cordoba": "Córdoba", "cuenca": "Cuenca", "guipuzcoa": "Gipuzkoa", "gipuzkoa": "Gipuzkoa", "gipuzkoa guipuzcoa": "Gipuzkoa", "gerona": "Girona", "girona": "Girona", "huesca": "Huesca",
+      "baleares": "Balearic Islands", "illes balears": "Balearic Islands", "coruna": "A Coruña", "a coruna": "A Coruña", "la coruna": "A Coruña", "leon": "León", "lerida": "Lleida", "lleida": "Lleida", "malaga": "Málaga", "murcia": "Murcia", "palencia": "Palencia", "segovia": "Segovia", "soria": "Soria", "teruel": "Teruel", "valencia": "Valencia", "valencia valencia": "Valencia", "zaragoza": "Zaragoza", "santa cruz de tenerife": "Santa Cruz de Tenerife", "sevilla": "Seville", "navarra": "Navarre"
+    };
+
+    const norm = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+    const canonical = value => aliases[norm(value)] || provinces.find(province => norm(province) === norm(value)) || String(value || "").trim();
+    const $ = id => document.getElementById(id);
+    const map = L.map("map", { zoomControl: true, minZoom: 4, maxZoom: 11, zoomSnap: .25 });
+    let geojsonLayer = null;
+    let queue = [], current = null, index = 0, answered = false, score = 0, streak = 0, correct = 0, advanceTimer = null, audioContext = null;
+    let responseSoundPlayed = false;
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors", maxZoom: 19 }).addTo(map);
+
+    function featureProvince(feature) {
+      const p = feature && feature.properties ? feature.properties : {};
+      return canonical(p.name || p.NAME_2 || p.NAME || p.nom_prov || p.provincia || p.province || "");
+    }
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [result[i], result[j]] = [result[j], result[i]]; }
+      return result;
+    }
+
+    function resetMap() {
+      if (!geojsonLayer) return;
+      geojsonLayer.eachLayer(layer => layer.setStyle({ fillColor: "#b8d8ec", fillOpacity: .9, color: "#fff", weight: 1.2 }));
+    }
+
+    function highlightAnswer() {
+      geojsonLayer.eachLayer(layer => { if (featureProvince(layer.feature) === current) layer.setStyle({ fillColor: "#43a047" }); });
+    }
+
+    function updateStats() {
+      $("score").textContent = score;
+      $("score").className = `stat-number ${score > 8 ? "score-high" : score > 0 && score < 5 ? "score-low" : ""}`;
+      $("streak").textContent = streak;
+      $("provincesCorrect").textContent = correct;
+      $("progressText").textContent = `${Math.min(index, queue.length)} / ${queue.length}`;
+      $("progressFill").style.width = `${queue.length ? Math.min(index / queue.length * 100, 100) : 0}%`;
+    }
+
+    function showFeedback(message, type) { $("feedback").textContent = message; $("feedback").className = `feedback ${type}`; }
+    function playResponseSound(responseType) {
+      if (responseSoundPlayed) return;
+      responseSoundPlayed = true;
+      audioContext ||= new AudioContext();
+      if (audioContext.state === "suspended") audioContext.resume();
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const now = audioContext.currentTime;
+      const isCorrect = responseType === "correct";
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(isCorrect ? 660 : 220, now);
+      oscillator.frequency.setValueAtTime(isCorrect ? 880 : 160, now + .12);
+      gain.gain.setValueAtTime(.0001, now);
+      gain.gain.exponentialRampToValueAtTime(.18, now + .01);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + .22);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + .22);
+    }
+    function scheduleNext() { clearTimeout(advanceTimer); $("nextProvince").disabled = true; advanceTimer = setTimeout(() => { index++; loadQuestion(); }, 900); }
+
+    function loadQuestion() {
+      clearTimeout(advanceTimer); resetMap(); answered = false; responseSoundPlayed = false; $("nextProvince").disabled = false; $("feedback").className = "feedback";
+      if (index >= queue.length) { current = null; $("provinceName").innerHTML = `<div class="finished"><h2>Quiz complete!</h2><p>You got <strong>${correct}</strong> provinces correct.</p></div>`; $("nextProvince").disabled = true; updateStats(); return; }
+      current = queue[index]; $("provinceName").textContent = current; updateStats();
+    }
+
+    function handleProvinceClick(layer) {
+      if (answered || !current) return;
+      answered = true;
+      const clicked = featureProvince(layer.feature);
+      if (clicked === current) { layer.setStyle({ fillColor: "#43a047" }); correct++; streak++; score = Math.round(correct / (index + 1) * 100) / 10; playResponseSound("correct"); showFeedback("Correct!", "correct"); }
+      else { layer.setStyle({ fillColor: "#d64545" }); highlightAnswer(); streak = 0; score = Math.round(correct / (index + 1) * 100) / 10; playResponseSound("wrong"); showFeedback(`Not quite. You selected ${clicked || "an unknown area"}.`, "wrong"); }
+      updateStats(); scheduleNext();
+    }
+
+    function startQuiz() { clearTimeout(advanceTimer); queue = shuffle(provinces); index = 0; current = null; answered = false; score = 0; streak = 0; correct = 0; loadQuestion(); }
+
+    $("nextProvince").addEventListener("click", () => { if (!current) return; clearTimeout(advanceTimer); streak = 0; index++; loadQuestion(); });
+    $("restart").addEventListener("click", startQuiz);
+
+    async function loadMap() {
+      try {
+        const response = await fetch("https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/spain-provinces.geojson");
+        if (!response.ok) throw new Error("Map unavailable");
+        const data = await response.json();
+        data.features = data.features.filter(feature => !["Ceuta", "Melilla"].includes(featureProvince(feature)));
+        geojsonLayer = L.geoJSON(data, {
+          style: () => ({ fillColor: "#b8d8ec", fillOpacity: .9, color: "#fff", weight: 1.2, className: "province" }),
+          onEachFeature: (feature, layer) => { layer.on("click", () => handleProvinceClick(layer)); layer.on("mouseover", () => { if (!answered) layer.setStyle({ fillColor: "#78acd4" }); }); layer.on("mouseout", () => { if (!answered) layer.setStyle({ fillColor: "#b8d8ec" }); }); }
+        }).addTo(map);
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [24, 24] });
+        startQuiz();
+      } catch (error) { console.error(error); $("provinceName").textContent = "The map could not be loaded."; showFeedback("Check your internet connection and try again.", "wrong"); }
+    }
+
+    loadMap();
+  </script>
+</body>
+</html>
