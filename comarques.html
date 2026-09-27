@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Catalonia Comarques Quiz</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+	<style>
+		body { min-width: 320px; }
+		main { width: min(1390px, calc(100% - 36px)); grid-template-columns: minmax(0, 930px) minmax(300px, 430px); }
+		.map-card { padding: 15px; }
+		#map { background: #dcecf7; }
+		.leaflet-container { font-family: Montserrat, Arial, sans-serif; }
+		.comarca { transition: fill .15s ease, filter .15s ease; cursor: pointer; }
+		.comarca:hover { fill: #78acd4; filter: brightness(1.04); }
+		.feedback.correct, .feedback.wrong { display: block; }
+		#nextComarca { width: 100%; margin-top: 12px; background: #667085; }
+		@media (max-width: 980px) {
+			main { grid-template-columns: 1fr; }
+			#map { height: 560px; }
+		}
+		@media (max-width: 560px) {
+			main { width: min(100% - 20px, 930px); margin: 12px auto; }
+			header h1 { font-size: 24px; }
+			.capital-row { flex-direction: column; }
+			.capital-row button { width: 100%; }
+			.decision-buttons { flex-direction: column; }
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<h1>Catalonia Comarques Quiz</h1>
+		<p>Find each comarca on the map and enter its capital.</p>
+	</header>
+
+	<main>
+		<section>
+			<div class="card map-card">
+				<div class="question">
+					<div class="question-title">Find this comarca on the map:</div>
+					<div id="comarcaName" class="country-name"></div>
+				</div>
+				<div id="map" aria-label="Interactive map of Catalonia's comarques"></div>
+				<div class="capital-area">
+					<label for="capitalInput">Now enter its capital:</label>
+					<div class="capital-row">
+						<input id="capitalInput" type="text" placeholder="Enter the capital..." autocomplete="off" disabled>
+						<button id="checkCapital" disabled>Check capital</button>
+					</div>
+					<div id="feedback" class="feedback" aria-live="polite"></div>
+					<div id="decisionButtons" class="decision-buttons">
+						<button id="acceptAnyway">Mark capital as correct</button>
+						<button id="markCapitalWrong">Mark capital as incorrect</button>
+					</div>
+					<button id="nextComarca">Skip comarca</button>
+				</div>
+			</div>
+			<div class="card section small">You get one attempt to find each comarca and one to enter its capital.</div>
+			<div class="card section small">©2026, <a href="https://arnautm-dev.netlify.app">arnautm-dev</a>. All rights reserved.</div>
+		</section>
+
+		<aside class="sidebar">
+			<div class="card">
+				<h2>Progress</h2>
+				<div class="progress-wrapper">
+					<div class="progress-bar"><div id="progressFill"></div></div>
+					  <div id="progressText">0 / 43</div>
+				</div>
+				<div class="stats">
+					<div class="stat"><div id="score" class="stat-number">0</div><div class="stat-label">Score / 10</div></div>
+					<div class="stat"><div id="streak" class="stat-number">0</div><div class="stat-label">Current streak</div></div>
+					<div class="stat"><div id="comarquesCorrect" class="stat-number">0</div><div class="stat-label">Comarques correct</div></div>
+					<div class="stat"><div id="capitalsCorrect" class="stat-number">0</div><div class="stat-label">Capitals correct</div></div>
+				</div>
+			</div>
+
+			<div class="card section">
+				<h2>How to play</h2>
+				<ol class="how-it-works">
+					<li>Read the comarca name.</li>
+					<li>Select it on the map.</li>
+					<li>Enter its capital.</li>
+					<li>Continue to the next question.</li>
+				</ol>
+			</div>
+
+			<div class="card section"><button id="restart">Restart quiz</button></div>
+		</aside>
+	</main>
+
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/topojson-client@3/dist/topojson-client.min.js"></script>
+	<script>
+		const comarques = [
+			{ name: "Alt Camp", capital: "Valls" },
+			{ name: "Alt Empordà", capital: "Figueres" },
+			{ name: "Alt Penedès", capital: "Vilafranca del Penedès", aliases: ["vilafranca"] },
+			{ name: "Alt Urgell", capital: "la Seu d'Urgell", aliases: ["seu d'urgell", "la seu"] },
+			{ name: "Alta Ribagorça", capital: "el Pont de Suert", aliases: ["pont de suert"] },
+			{ name: "Anoia", capital: "Igualada" },
+			{ name: "Aran", capital: "Vielha", aliases: ["vielha e mijaran", "viella"] },
+			{ name: "Bages", capital: "Manresa" },
+			{ name: "Baix Camp", capital: "Reus" },
+			{ name: "Baix Ebre", capital: "Tortosa" },
+			{ name: "Baix Empordà", capital: "la Bisbal d'Empordà", aliases: ["bisbal d'emporda", "la bisbal"] },
+			{ name: "Baix Llobregat", capital: "Sant Feliu de Llobregat", aliases: ["sant feliu"] },
+			{ name: "Baix Penedès", capital: "el Vendrell", aliases: ["vendrell"] },
+			{ name: "Barcelonès", capital: "Barcelona" },
+			{ name: "Berguedà", capital: "Berga" },
+			{ name: "Cerdanya", capital: "Puigcerdà", aliases: ["puigcerda"] },
+			{ name: "Conca de Barberà", capital: "Montblanc" },
+			{ name: "Garraf", capital: "Vilanova i la Geltrú", aliases: ["vilanova", "vilanova i la geltru"] },
+			{ name: "Garrigues", capital: "les Borges Blanques", aliases: ["borges blanques"] },
+			{ name: "Garrotxa", capital: "Olot" },
+			{ name: "Gironès", capital: "Girona" },
+			{ name: "Lluçanès", capital: "Prats de Lluçanès", aliases: ["prats de llucanes"] },
+			{ name: "Maresme", capital: "Mataró" },
+			{ name: "Moianès", capital: "Moià" },
+			{ name: "Montsià", capital: "Amposta" },
+			{ name: "Noguera", capital: "Balaguer" },
+			{ name: "Osona", capital: "Vic" },
+			{ name: "Pallars Jussà", capital: "Tremp" },
+			{ name: "Pallars Sobirà", capital: "Sort" },
+			{ name: "Pla d'Urgell", capital: "Mollerussa" },
+			{ name: "Pla de l'Estany", capital: "Banyoles" },
+			{ name: "Priorat", capital: "Falset" },
+			{ name: "Ribera d'Ebre", capital: "Móra d'Ebre", aliases: ["mora d'ebre"] },
+			{ name: "Ripollès", capital: "Ripoll" },
+			{ name: "Segarra", capital: "Cervera" },
+			{ name: "Segrià", capital: "Lleida" },
+			{ name: "Selva", capital: "Santa Coloma de Farners", aliases: ["santa coloma"] },
+			{ name: "Solsonès", capital: "Solsona" },
+			{ name: "Tarragonès", capital: "Tarragona" },
+			{ name: "Terra Alta", capital: "Gandesa" },
+			{ name: "Urgell", capital: "Tàrrega" },
+			{ name: "Vallès Occidental", capital: "Sabadell / Terrassa", aliases: ["sabadell", "terrassa"] },
+			{ name: "Vallès Oriental", capital: "Granollers" }
+		];
+
+		const norm = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+		const $ = id => document.getElementById(id);
+		const map = L.map("map", { zoomControl: true, minZoom: 6, maxZoom: 13, zoomSnap: .25 });
+		let geojsonLayer = null;
+		let queue = [], current = null, index = 0, mapAnswered = false, capitalAnswered = false;
+		let score = 0, streak = 0, comarquesCorrect = 0, capitalsCorrect = 0, advanceTimer = null, audioContext = null;
+		let mapSoundPlayed = false, capitalSoundPlayed = false;
+
+		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution: "&copy; OpenStreetMap contributors",
+			maxZoom: 19
+		}).addTo(map);
+
+		function shuffle(items) {
+			const result = [...items];
+			for (let i = result.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[result[i], result[j]] = [result[j], result[i]];
+			}
+			return result;
+		}
+
+		function featureComarca(feature) {
+			const properties = feature && feature.properties ? feature.properties : {};
+			const rawName = properties["name:ca"] || properties.name || properties.nom_comarca || properties.comarca || properties.nom || properties["idescat:comarca"] || "";
+			const cleaned = norm(rawName).replace(/^comarca (de|del|de la|dels|de les) /, "");
+			if (["val daran", "val aran", "vall daran"].includes(cleaned)) return "Aran";
+			return comarques.find(comarca => norm(comarca.name) === cleaned)?.name || String(rawName).trim();
+		}
+
+		function showFeedback(message, type) {
+			$("feedback").textContent = message;
+			$("feedback").className = `feedback ${type}`;
+		}
+
+		function playResponseSound(responseType, responseKind) {
+			if (responseKind === "map" ? mapSoundPlayed : capitalSoundPlayed) return;
+			if (responseKind === "map") mapSoundPlayed = true;
+			else capitalSoundPlayed = true;
+			audioContext ||= new AudioContext();
+			if (audioContext.state === "suspended") audioContext.resume();
+			const oscillator = audioContext.createOscillator();
+			const gain = audioContext.createGain();
+			const now = audioContext.currentTime;
+			const isCorrect = responseType === "correct";
+			oscillator.type = "sine";
+			oscillator.frequency.setValueAtTime(isCorrect ? 660 : 220, now);
+			oscillator.frequency.setValueAtTime(isCorrect ? 880 : 160, now + .12);
+			gain.gain.setValueAtTime(.0001, now);
+			gain.gain.exponentialRampToValueAtTime(.18, now + .01);
+			gain.gain.exponentialRampToValueAtTime(.0001, now + .22);
+			oscillator.connect(gain);
+			gain.connect(audioContext.destination);
+			oscillator.start(now);
+			oscillator.stop(now + .22);
+		}
+
+		function updateStats() {
+			const answered = Math.min(index + (mapAnswered ? 1 : 0), queue.length);
+			score = answered ? Math.round(((comarquesCorrect + capitalsCorrect) / (answered * 2)) * 100) / 10 : 0;
+			$("score").textContent = score;
+			$("score").className = `stat-number ${score > 8 ? "score-high" : score > 0 && score < 5 ? "score-low" : ""}`;
+			$("streak").textContent = streak;
+			$("comarquesCorrect").textContent = comarquesCorrect;
+			$("capitalsCorrect").textContent = capitalsCorrect;
+			$("progressText").textContent = `${Math.min(index, queue.length)} / ${queue.length}`;
+			$("progressFill").style.width = `${queue.length ? Math.min(index / queue.length * 100, 100) : 0}%`;
+		}
+
+		function resetMap() {
+			if (!geojsonLayer) return;
+			geojsonLayer.eachLayer(layer => layer.setStyle({ fillColor: "#b8d8ec", fillOpacity: .9, color: "#fff", weight: 1.2 }));
+		}
+
+		function highlightAnswer() {
+			if (!geojsonLayer) return;
+			geojsonLayer.eachLayer(layer => {
+				if (featureComarca(layer.feature) === current.name) layer.setStyle({ fillColor: "#43a047" });
+			});
+		}
+
+		function scheduleNext(delay = 900) {
+			clearTimeout(advanceTimer);
+			$("nextComarca").disabled = true;
+			advanceTimer = setTimeout(() => { index++; loadQuestion(); }, delay);
+		}
+
+		function loadQuestion() {
+			clearTimeout(advanceTimer);
+			resetMap();
+			mapAnswered = false;
+			capitalAnswered = false;
+			mapSoundPlayed = false;
+			capitalSoundPlayed = false;
+			$("decisionButtons").style.display = "none";
+			$("feedback").className = "feedback";
+			$("capitalInput").value = "";
+			$("capitalInput").disabled = true;
+			$("checkCapital").disabled = true;
+			$("nextComarca").disabled = false;
+
+			if (index >= queue.length) {
+				current = null;
+				$("comarcaName").innerHTML = `<div class="finished"><h2>Quiz complete!</h2><p>You scored <strong>${score}</strong> points.</p><p>Comarques correct: <strong>${comarquesCorrect}</strong><br>Capitals correct: <strong>${capitalsCorrect}</strong></p></div>`;
+				$("nextComarca").disabled = true;
+				updateStats();
+				return;
+			}
+
+			current = queue[index];
+			$("comarcaName").textContent = current.name;
+			updateStats();
+		}
+
+		function handleComarcaClick(layer) {
+			if (mapAnswered || !current) return;
+			mapAnswered = true;
+			const clicked = featureComarca(layer.feature);
+			if (clicked === current.name) {
+				highlightAnswer();
+				playResponseSound("correct", "map");
+				comarquesCorrect++;
+				streak++;
+				showFeedback(`Correct! Now enter the capital of ${current.name}.`, "correct");
+				$("capitalInput").disabled = false;
+				$("checkCapital").disabled = false;
+				$("capitalInput").focus();
+			} else {
+				layer.setStyle({ fillColor: "#d64545" });
+				highlightAnswer();
+				playResponseSound("wrong", "map");
+				streak = 0;
+				showFeedback(`Not quite. You selected ${clicked || "an unknown area"}. The next question will load automatically.`, "wrong");
+				scheduleNext();
+			}
+			updateStats();
+		}
+
+		function checkCapitalAnswer() {
+			if (!current || !mapAnswered || capitalAnswered || $("capitalInput").disabled) return;
+			capitalAnswered = true;
+			$("capitalInput").disabled = true;
+			$("checkCapital").disabled = true;
+			const answer = norm($("capitalInput").value);
+			const accepted = [current.capital, ...(current.aliases || []), ...(current.acceptedCapitals || [])].some(value => norm(value) === answer);
+			if (accepted) {
+				playResponseSound("correct", "capital");
+				capitalsCorrect++;
+				streak++;
+				showFeedback(`Correct! ${current.capital} is the capital of ${current.name}.`, "correct");
+				scheduleNext();
+				updateStats();
+				return;
+			}
+
+			const expectedLetters = norm(current.capital).split("");
+			let matchingLetters = 0;
+			for (const letter of answer) {
+				const matchIndex = expectedLetters.indexOf(letter);
+				if (matchIndex !== -1) {
+					matchingLetters++;
+					expectedLetters.splice(matchIndex, 1);
+				}
+			}
+			if (matchingLetters <= 2) {
+				playResponseSound("wrong", "capital");
+				streak = 0;
+				showFeedback(`Incorrect. The correct capital is ${current.capital}.`, "wrong");
+				scheduleNext();
+				updateStats();
+				return;
+			}
+
+			showFeedback(`Almost. The correct capital is ${current.capital}.`, "partial");
+			$("decisionButtons").style.display = "flex";
+			updateStats();
+		}
+
+		function acceptCapital() {
+			if (!capitalAnswered || $("decisionButtons").style.display === "none") return;
+			capitalsCorrect++;
+			streak++;
+			playResponseSound("correct", "capital");
+			$("decisionButtons").style.display = "none";
+			showFeedback("Capital accepted as correct.", "correct");
+			scheduleNext(700);
+			updateStats();
+		}
+
+		function rejectCapital() {
+			if (!capitalAnswered || $("decisionButtons").style.display === "none") return;
+			streak = 0;
+			playResponseSound("wrong", "capital");
+			$("decisionButtons").style.display = "none";
+			showFeedback(`Capital marked as incorrect. The answer was ${current.capital}.`, "wrong");
+			scheduleNext(700);
+			updateStats();
+		}
+
+		function startQuiz() {
+			clearTimeout(advanceTimer);
+			queue = shuffle(comarques);
+			index = 0;
+			score = 0;
+			streak = 0;
+			comarquesCorrect = 0;
+			capitalsCorrect = 0;
+			loadQuestion();
+		}
+
+		$("checkCapital").addEventListener("click", checkCapitalAnswer);
+		$("capitalInput").addEventListener("keydown", event => { if (event.key === "Enter") checkCapitalAnswer(); });
+		$("acceptAnyway").addEventListener("click", acceptCapital);
+		$("markCapitalWrong").addEventListener("click", rejectCapital);
+		$("nextComarca").addEventListener("click", () => {
+			if (!current) return;
+			clearTimeout(advanceTimer);
+			streak = 0;
+			index++;
+			loadQuestion();
+		});
+		$("restart").addEventListener("click", startQuiz);
+
+		async function loadMap() {
+			try {
+				const response = await fetch("https://raw.githubusercontent.com/ArnauInes/geometries_cat_bcn_2024/main/dts_comarques_cat_2025.json");
+				if (!response.ok) throw new Error("Could not load the map");
+				const topology = await response.json();
+				const data = topojson.feature(topology, topology.objects.dts_comarques_cat_2025);
+				geojsonLayer = L.geoJSON(data, {
+					style: () => ({ fillColor: "#b8d8ec", fillOpacity: .9, color: "#fff", weight: 1.2, className: "comarca" }),
+					onEachFeature: (feature, layer) => {
+						layer.on("click", () => handleComarcaClick(layer));
+						layer.on("mouseover", () => { if (!mapAnswered) layer.setStyle({ fillColor: "#78acd4" }); });
+						layer.on("mouseout", () => { if (!mapAnswered) layer.setStyle({ fillColor: "#b8d8ec" }); });
+					}
+				}).addTo(map);
+				map.fitBounds(geojsonLayer.getBounds(), { padding: [24, 24] });
+				startQuiz();
+			} catch (error) {
+				console.error(error);
+				$("comarcaName").textContent = "Could not load the map.";
+				showFeedback("Check your internet connection and try again.", "wrong");
+			}
+		}
+
+		loadMap();
+	</script>
+</body>
+</html>
