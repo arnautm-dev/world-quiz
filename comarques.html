@@ -89,6 +89,26 @@
 				</ol>
 			</div>
 
+			<div class="card section">
+				<h2>Map selection</h2>
+				<div class="option">
+					<input type="checkbox" id="excludeLleidaPirineus">
+					<label for="excludeLleidaPirineus">Exclude Lleida-Pirineus</label>
+				</div>
+				<div class="option">
+					<input type="checkbox" id="excludeCostaNord">
+					<label for="excludeCostaNord">Exclude Costa Nord</label>
+				</div>
+				<div class="option">
+					<input type="checkbox" id="excludeTerresEbre">
+					<label for="excludeTerresEbre">Exclude Terres de l'Ebre</label>
+				</div>
+				<div class="option">
+					<input type="checkbox" id="excludeCatalunyaCentral">
+					<label for="excludeCatalunyaCentral">Exclude Catalunya Central</label>
+				</div>
+			</div>
+
 			<div class="card section"><button id="restart">Restart quiz</button></div>
 		</aside>
 	</main>
@@ -141,6 +161,12 @@
 			{ name: "Vallès Occidental", capital: "Sabadell / Terrassa", aliases: ["sabadell", "terrassa"] },
 			{ name: "Vallès Oriental", capital: "Granollers" }
 		];
+		const exclusions = {
+			excludeLleidaPirineus: ["Segrià", "Noguera", "Pla d'Urgell", "Urgell", "Garrigues", "Segarra", "Solsonès", "Pallars Jussà", "Pallars Sobirà", "Alta Ribagorça", "Alt Urgell", "Aran", "Cerdanya", "Berguedà"],
+			excludeCostaNord: ["Baix Llobregat", "Vallès Occidental", "Vallès Oriental", "Barcelonès", "Maresme", "Selva", "Gironès", "Baix Empordà", "Pla de l'Estany", "Alt Empordà"],
+			excludeTerresEbre: ["Baix Ebre", "Montsià", "Ribera d'Ebre", "Terra Alta", "Priorat", "Baix Camp"],
+			excludeCatalunyaCentral: ["Anoia", "Bages", "Osona", "Moianès", "Garrotxa", "Conca de Barberà", "Alt Camp", "Tarragonès", "Baix Penedès", "Alt Penedès", "Garraf", "Ripollès", "Lluçanès"]
+		};
 
 		const norm = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 		const $ = id => document.getElementById(id);
@@ -343,7 +369,10 @@
 
 		function startQuiz() {
 			clearTimeout(advanceTimer);
-			queue = shuffle(comarques);
+			const excludedComarques = new Set(Object.entries(exclusions)
+				.filter(([optionId]) => $(optionId).checked)
+				.flatMap(([, names]) => names));
+			queue = shuffle(comarques.filter(comarca => !excludedComarques.has(comarca.name)));
 			index = 0;
 			score = 0;
 			streak = 0;
@@ -356,6 +385,9 @@
 		$("capitalInput").addEventListener("keydown", event => { if (event.key === "Enter") checkCapitalAnswer(); });
 		$("acceptAnyway").addEventListener("click", acceptCapital);
 		$("markCapitalWrong").addEventListener("click", rejectCapital);
+		Object.keys(exclusions).forEach(optionId => {
+			$(optionId).addEventListener("change", () => { if (geojsonLayer) startQuiz(); });
+		});
 		$("nextComarca").addEventListener("click", () => {
 			if (!current) return;
 			clearTimeout(advanceTimer);
