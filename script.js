@@ -55,7 +55,7 @@ const countries = [
   {name:"Ecuador",capital:"Quito"},
   {name:"Egypt",capital:"Cairo"},
   {name:"El Salvador",capital:"San Salvador"},
-  {name:"Equatorial Guinea",capital:"Malabo"},
+  {name:"Equatorial Guinea",capital:"Ciudad de la Paz"},
   {name:"Eritrea",capital:"Asmara"},
   {name:"Estonia",capital:"Tallinn"},
   {name:"Eswatini",capital:"Mbabane"},
