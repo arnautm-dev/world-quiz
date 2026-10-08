@@ -310,3 +310,150 @@ button:disabled {
 .finished h2 {
   font-size: 30px;
 }
+
+/* Physical geography quiz */
+.physical-page {
+  min-width: 320px;
+}
+
+.physical-page main {
+  width: min(1390px, calc(100% - 36px));
+  grid-template-columns: minmax(0, 930px) minmax(280px, 430px);
+}
+
+.physical-page #map {
+  height: min(68vh, 720px);
+  min-height: 440px;
+  background: #dcecf7;
+  cursor: crosshair;
+}
+
+.physical-page .physical-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.physical-page .physical-question-name {
+  color: #173b67;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+}
+
+.physical-page .physical-question-count {
+  flex: none;
+  color: #667085;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.physical-page .physical-map-card {
+  padding: 15px;
+}
+
+.physical-page .physical-feedback {
+  min-height: 52px;
+}
+
+.physical-page #nextFeature,
+.physical-page #playAgain {
+  width: 100%;
+  margin-top: 12px;
+  background: #3678b7;
+}
+
+.physical-page .physical-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 12px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.physical-page .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.physical-page .legend-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(29, 41, 57, .2);
+}
+
+.physical-page .legend-dot.guess { background: #d64545; }
+.physical-page .legend-dot.answer { background: #26734d; }
+
+.physical-page .physical-result {
+  display: none;
+  text-align: center;
+}
+
+.physical-page .physical-result.visible {
+  display: block;
+}
+
+.physical-page .physical-result-score {
+  margin: 20px 0;
+  color: #173b67;
+  font-size: clamp(36px, 7vw, 58px);
+  font-weight: 800;
+}
+
+.physical-page .physical-error {
+  color: #a52323;
+}
+
+.physical-page .physical-attribution {
+  margin-top: 10px;
+  color: #667085;
+  font-size: 11px;
+  text-align: right;
+}
+
+@media (max-width: 850px) {
+  .physical-page main {
+    width: min(100% - 24px, 650px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    margin: 16px auto;
+  }
+
+  .physical-page #map {
+    height: min(65vh, 600px);
+    min-height: 360px;
+  }
+
+  .physical-page header {
+    padding: 18px 20px;
+  }
+
+  .physical-page header h1 {
+    font-size: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .physical-page main {
+    width: calc(100% - 16px);
+  }
+
+  .physical-page .card {
+    padding: 15px;
+  }
+
+  .physical-page .physical-map-card {
+    padding: 9px;
+  }
+
+  .physical-page #map {
+    height: 58vh;
+    min-height: 320px;
+  }
+}

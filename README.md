@@ -1,2 +1,2 @@
 # worldquiz
-A game of countries and capital cities of all the world.
+A collection of interactive geography quizzes, including world capitals and physical geography.

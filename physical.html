@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physical Geography Map Quiz</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="physical-page">
+  <header>
+    <h1>🌍 Physical Geography Quiz</h1>
+    <p>Find the world's physical features on a blank map.</p>
+  </header>
+
+  <main>
+    <section>
+      <div class="card physical-map-card">
+        <div class="physical-question">
+          <div>
+            <div class="question-title">Find this feature on the map:</div>
+            <div id="featureName" class="physical-question-name" aria-live="polite">Loading map…</div>
+          </div>
+          <div id="questionCount" class="physical-question-count"></div>
+        </div>
+        <div id="map" role="application" aria-label="Blank world map. Click where the named physical feature is located."></div>
+        <div class="physical-map-legend" aria-label="Map marker legend">
+          <span class="legend-item"><span class="legend-dot guess" aria-hidden="true"></span>Your guess</span>
+          <span class="legend-item"><span class="legend-dot answer" aria-hidden="true"></span>Feature location</span>
+        </div>
+        <div id="feedback" class="feedback physical-feedback" role="status" aria-live="polite"></div>
+        <button id="nextFeature" disabled>Next →</button>
+        <div id="mapError" class="feedback wrong" role="alert"></div>
+        <div class="physical-attribution">Map outlines: Natural Earth country data via geo-countries · Map library: Leaflet</div>
+      </div>
+
+      <div class="card section small">
+        Click approximately where the feature is. Rivers and mountain ranges accept clicks along their routes; other features have a generous surrounding answer zone.
+      </div>
+      <div class="card section small">
+        ©2026, <a href="https://arnautm-dev.netlify.app">arnautm-dev</a>. All rights reserved.
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div id="gamePanel" class="card">
+        <h2>Progress</h2>
+        <div class="progress-wrapper">
+          <div class="progress-bar"><div id="progressFill"></div></div>
+          <div id="progressText">0 / 0</div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div id="score" class="stat-number">0%</div>
+            <div class="stat-label">Accuracy</div>
+          </div>
+          <div class="stat">
+            <div id="answeredCount" class="stat-number">0</div>
+            <div class="stat-label">Answered</div>
+          </div>
+          <div class="stat">
+            <div id="correctCount" class="stat-number">0</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat">
+            <div id="incorrectCount" class="stat-number">0</div>
+            <div class="stat-label">Incorrect</div>
+          </div>
+        </div>
+        <div class="section">
+          <h2>How to play</h2>
+          <ol class="how-it-works">
+            <li>Read the physical feature's name.</li>
+            <li>Click its approximate location on the map.</li>
+            <li>Check the feedback and reveal the location.</li>
+            <li>Press Next to continue through every feature.</li>
+          </ol>
+          <p class="small">Every feature appears once in a randomized order.</p>
+        </div>
+      </div>
+
+      <div id="resultPanel" class="card physical-result" aria-live="polite">
+        <h2>Quiz complete!</h2>
+        <div id="finalScore" class="physical-result-score">0%</div>
+        <p><strong id="finalCorrect">0</strong> correct · <strong id="finalIncorrect" class="physical-error">0</strong> incorrect</p>
+        <p id="finalTotal" class="small"></p>
+        <button id="playAgain">Play again</button>
+      </div>
+    </aside>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="physical.js"></script>
+</body>
+</html>
