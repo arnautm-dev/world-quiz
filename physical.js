@@ -1,23 +1,44 @@
 const features = [];
+let currentCategory = "Mountains";
 
 function point(name, lat, lon, toleranceKm = 180, water = false) {
-  features.push({ name, type: "point", coordinates: [[lat, lon]], toleranceKm, water });
+  features.push({ name, type: "point", category: currentCategory, coordinates: [[lat, lon]], toleranceKm, water });
 }
 
 function area(name, lat, lon, toleranceKm) {
-  features.push({ name, type: "area", coordinates: [[lat, lon]], toleranceKm, water: false });
+  features.push({ name, type: "area", category: currentCategory, coordinates: [[lat, lon]], toleranceKm, water: false });
 }
 
-function sea(name, lat, lon, toleranceKm) {
-  features.push({ name, type: "area", coordinates: [[lat, lon]], toleranceKm, water: true });
+function sea(name, lat, lon, toleranceKm, continent = null) {
+  features.push({ name, type: "area", category: currentCategory, coordinates: [[lat, lon]], toleranceKm, water: true, continent });
 }
 
 function landArea(name, lat, lon, toleranceKm) {
-  features.push({ name, type: "area", coordinates: [[lat, lon]], toleranceKm, water: false });
+  features.push({ name, type: "area", category: currentCategory, coordinates: [[lat, lon]], toleranceKm, water: false });
 }
 
 function line(name, toleranceKm, coordinates) {
-  features.push({ name, type: "line", coordinates, toleranceKm });
+  features.push({ name, type: "line", category: currentCategory, coordinates, toleranceKm });
+}
+
+function continentAt(position) {
+  const latitude = position[0];
+  const longitude = position[1];
+  if (latitude <= -60) return "Antarctica";
+  if (latitude > 5 && longitude < -30) return "North America";
+  if (latitude <= 15 && longitude < -30) return "South America";
+  if (latitude >= -40 && latitude <= 38 && longitude >= -20 && longitude <= 52
+    && !(latitude > 10 && longitude > 42)) return "Africa";
+  if (latitude >= 35 && latitude <= 72 && longitude >= -25 && longitude <= 40) return "Europe";
+  if ((longitude > 110 && latitude < -5) || (longitude > 130 && latitude >= -5 && latitude < 5)) {
+    return "Oceania";
+  }
+  if (longitude > 25 && latitude > -12 && latitude < 80) return "Asia";
+  return null;
+}
+
+function getFeatureContinent(feature) {
+  return feature.continent || (feature.water ? null : continentAt(featureCenter(feature)));
 }
 
 // Mountains and mountain ranges
@@ -55,6 +76,7 @@ line("Transantarctic Mountains", 320, [[-75, 160], [-78, 170], [-80, -175], [-78
 point("Vinson Massif (highest in Antarctica)", -78.525, -85.617, 100);
 
 // Rivers
+currentCategory = "Rivers";
 line("Nile River (often cited as the world's longest)", 170, [[-3, 32], [0, 32.5], [4, 32], [9, 31], [15, 32.5], [22, 32.5], [27, 30.5], [30, 31]]);
 line("Congo River (Africa's greatest discharge)", 180, [[-11, 26], [-7, 25], [-4, 20], [0, 18], [-3, 16], [-6, 12]]);
 line("Niger River", 170, [[9, -10], [14, -4], [17, -3], [15, 1], [11, 5], [5, 6]]);
@@ -100,6 +122,7 @@ line("Sepik River", 85, [[-4, 141], [-4, 145], [-4.2, 147]]);
 line("Fly River", 90, [[-6, 141], [-7, 144], [-8.5, 146]]);
 
 // Lakes
+currentCategory = "Lakes";
 area("Lake Victoria (Africa's largest lake)", -1, 33, 190);
 area("Lake Tanganyika", -6, 29.5, 110);
 area("Lake Malawi", -12, 34.5, 110);
@@ -128,16 +151,19 @@ area("Lake Taupō", -38.8, 175.9, 80);
 area("Lake Te Anau", -45.1, 167.7, 80);
 
 // Other physical geography highlights
+currentCategory = "Deserts";
 area("Sahara Desert (world's largest hot desert)", 23, 13, 750);
 area("Antarctic Desert (world's largest desert)", -80, 0, 1100);
 area("Atacama Desert (one of the world's driest regions)", -23.5, -69, 160);
 area("Gobi Desert", 42, 105, 450);
+currentCategory = "Other features";
 point("Angel Falls (world's highest uninterrupted waterfall)", 5.967, -62.536, 100, true);
 point("Dead Sea (lowest exposed land elevation)", 31.5, 35.5, 70);
 landArea("Greenland (world's largest island)", 72, -40, 800);
-sea("Great Barrier Reef (world's largest coral reef system)", -18, 147, 450);
+sea("Great Barrier Reef (world's largest coral reef system)", -18, 147, 450, "Oceania");
 
 // Seas
+currentCategory = "Seas and gulfs";
 sea("Mediterranean Sea", 35, 18, 700);
 sea("Red Sea", 20, 38, 260);
 sea("North Sea", 56, 3, 330);
@@ -195,6 +221,7 @@ area("Spencer Gulf", -34, 136, 130);
 sea("Gulf of Papua", -9, 145, 170);
 
 // Peninsulas
+currentCategory = "Peninsulas";
 landArea("Somali Peninsula (Horn of Africa)", 8, 48, 430);
 landArea("Iberian Peninsula", 40, -4, 390);
 landArea("Italian Peninsula", 42, 13, 340);
@@ -222,6 +249,7 @@ landArea("Eyre Peninsula", -33, 135, 170);
 landArea("Antarctic Peninsula", -68, -64, 260);
 
 // Straits and canals
+currentCategory = "Straits and canals";
 point("Strait of Gibraltar", 35.97, -5.6, 110, true);
 point("Bab-el-Mandeb Strait", 12.6, 43.3, 110, true);
 point("Bosphorus Strait", 41.1, 29.1, 85);
@@ -269,6 +297,9 @@ const correctCount = document.getElementById("correctCount");
 const incorrectCount = document.getElementById("incorrectCount");
 const gamePanel = document.getElementById("gamePanel");
 const resultPanel = document.getElementById("resultPanel");
+const continentOptions = document.getElementById("continentOptions");
+const featureTypeOptions = document.getElementById("featureTypeOptions");
+const applyContinentsButton = document.getElementById("applyContinents");
 
 function shuffled(items) {
   const result = items.slice();
@@ -524,7 +555,25 @@ function showResults() {
 }
 
 function startQuiz() {
-  queue = shuffled(features);
+  const excludedContinents = new Set(
+    Array.from(continentOptions.querySelectorAll("input:checked"), input => input.value)
+  );
+  const excludedTypes = new Set(
+    Array.from(featureTypeOptions.querySelectorAll("input:checked"), input => input.value)
+  );
+  const filteredFeatures = features.filter(feature =>
+    !excludedContinents.has(getFeatureContinent(feature))
+    && !excludedTypes.has(feature.category)
+  );
+  if (!filteredFeatures.length) {
+    mapError.className = "feedback wrong";
+    mapError.textContent = "No features remain with these exclusions. Adjust the continent or feature type selections and try again.";
+    return;
+  }
+
+  queue = shuffled(filteredFeatures);
+  mapError.className = "feedback";
+  mapError.textContent = "";
   questionIndex = 0;
   correctAnswers = 0;
   incorrectAnswers = 0;
@@ -560,6 +609,9 @@ async function loadBlankMap() {
     map.fitWorld({ padding: [12, 12] });
     map.on("click", handleMapClick);
     featureName.textContent = "";
+    continentOptions.disabled = false;
+    featureTypeOptions.disabled = false;
+    applyContinentsButton.disabled = false;
     startQuiz();
   } catch (error) {
     console.error("Could not load the blank world map.", error);
@@ -576,6 +628,7 @@ nextButton.addEventListener("click", () => {
 });
 
 document.getElementById("playAgain").addEventListener("click", startQuiz);
+applyContinentsButton.addEventListener("click", startQuiz);
 
 window.addEventListener("resize", () => map.invalidateSize());
 

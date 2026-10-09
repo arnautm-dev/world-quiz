@@ -46,6 +46,33 @@
     </section>
 
     <aside class="sidebar">
+      <div class="card physical-options">
+        <h2>Quiz options</h2>
+        <fieldset id="continentOptions" disabled>
+          <legend>Exclude continents</legend>
+          <label><input type="checkbox" value="Africa"> Africa</label>
+          <label><input type="checkbox" value="Europe"> Europe</label>
+          <label><input type="checkbox" value="Asia"> Asia</label>
+          <label><input type="checkbox" value="North America"> North America</label>
+          <label><input type="checkbox" value="South America"> South America</label>
+          <label><input type="checkbox" value="Oceania"> Oceania</label>
+          <label><input type="checkbox" value="Antarctica"> Antarctica</label>
+        </fieldset>
+        <fieldset id="featureTypeOptions" disabled>
+          <legend>Exclude feature types</legend>
+          <label><input type="checkbox" value="Mountains"> Mountains</label>
+          <label><input type="checkbox" value="Rivers"> Rivers</label>
+          <label><input type="checkbox" value="Lakes"> Lakes</label>
+          <label><input type="checkbox" value="Seas and gulfs"> Seas and gulfs</label>
+          <label><input type="checkbox" value="Deserts"> Deserts</label>
+          <label><input type="checkbox" value="Peninsulas"> Peninsulas</label>
+          <label><input type="checkbox" value="Straits and canals"> Straits and canals</label>
+          <label><input type="checkbox" value="Other features"> Other features</label>
+        </fieldset>
+        <p class="small">Ocean and sea features stay in the quiz unless excluded by type.</p>
+        <button id="applyContinents" disabled>Apply options and restart quiz</button>
+      </div>
+
       <div id="gamePanel" class="card">
         <h2>Progress</h2>
         <div class="progress-wrapper">

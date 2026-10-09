@@ -417,6 +417,51 @@ button:disabled {
   text-align: right;
 }
 
+.physical-page .physical-options {
+  margin-bottom: 16px;
+}
+
+.physical-page .physical-options fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+}
+
+.physical-page .physical-options legend {
+  padding: 0 5px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.physical-page .physical-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+}
+
+.physical-page .physical-options input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #3678b7;
+}
+
+.physical-page .physical-options p {
+  margin: 10px 0 0;
+}
+
+.physical-page #applyContinents {
+  width: 100%;
+  margin-top: 12px;
+  background: #3678b7;
+}
+
 @media (max-width: 850px) {
   .physical-page main {
     width: min(100% - 24px, 650px);
