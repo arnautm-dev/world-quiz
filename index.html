@@ -70,6 +70,15 @@
 			transition: transform .2s ease, box-shadow .2s ease;
 		}
 
+		.featured {
+			display: flex;
+			min-height: 280px;
+			flex-direction: column;
+			padding: 27px;
+			border-top: 5px solid #debc42;
+			transition: transform .2s ease, box-shadow .2s ease;
+		}
+
 		.quiz-card:hover {
 			transform: translateY(-5px);
 			box-shadow: 0 10px 25px rgba(23, 59, 103, .14);
@@ -165,11 +174,12 @@
 				<a class="quiz-link" href="countries.html">Start quiz <span aria-hidden="true">→</span></a>
 			</article>
 
-			<article class="card quiz-card">
+			<article class="card quiz-card featured">
 				<div class="quiz-icon">
 					<img src="assets/worldcountries.png" alt="Blank outline map of the world">
 				</div>
 				<h3>Physical geography</h3>
+				<p>NEW!</p>
 				<p>Locate the world's mountains, rivers, lakes, seas, gulfs, peninsulas, and straits.</p>
 				<a class="quiz-link" href="physical.html">Start quiz <span aria-hidden="true">→</span></a>
 			</article>
