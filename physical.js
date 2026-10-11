@@ -266,6 +266,28 @@ point("Bass Strait", -39.5, 147, 130, true);
 point("Drake Passage", -58, -65, 230, true);
 sea("Mozambique Channel", -17, 42, 300);
 
+const importantFeatureNames = new Set([
+  "Mount Kilimanjaro (highest in Africa)",
+  "Nile River (often cited as the world's longest)",
+  "Mount Elbrus (highest in Europe)",
+  "Volga River (longest in Europe)",
+  "Mount Everest (highest in Asia and the world)",
+  "Yangtze River (longest in Asia)",
+  "Aconcagua (highest in South America)",
+  "Amazon River (greatest discharge in the world)",
+  "Denali (highest in North America)",
+  "Mississippi–Missouri River system (longest in North America)",
+  "Puncak Jaya (highest in Oceania)",
+  "Murray–Darling system (longest in Australia)",
+  "Vinson Massif (highest in Antarctica)"
+]);
+
+features.forEach(feature => {
+  if (importantFeatureNames.has(feature.name)) {
+    feature.important = true;
+  }
+});
+
 const map = L.map("map", {
   zoomControl: true,
   attributionControl: false,
@@ -299,6 +321,7 @@ const gamePanel = document.getElementById("gamePanel");
 const resultPanel = document.getElementById("resultPanel");
 const continentOptions = document.getElementById("continentOptions");
 const featureTypeOptions = document.getElementById("featureTypeOptions");
+const onlyImportantFeatures = document.getElementById("onlyImportantFeatures");
 const applyContinentsButton = document.getElementById("applyContinents");
 
 function shuffled(items) {
@@ -564,10 +587,11 @@ function startQuiz() {
   const filteredFeatures = features.filter(feature =>
     !excludedContinents.has(getFeatureContinent(feature))
     && !excludedTypes.has(feature.category)
+    && (!onlyImportantFeatures.checked || feature.important === true)
   );
   if (!filteredFeatures.length) {
     mapError.className = "feedback wrong";
-    mapError.textContent = "No features remain with these exclusions. Adjust the continent or feature type selections and try again.";
+    mapError.textContent = "No features remain with these exclusions. Adjust the continent, feature type, or important-only selections and try again.";
     return;
   }
 
@@ -611,6 +635,7 @@ async function loadBlankMap() {
     featureName.textContent = "";
     continentOptions.disabled = false;
     featureTypeOptions.disabled = false;
+    onlyImportantFeatures.disabled = false;
     applyContinentsButton.disabled = false;
     startQuiz();
   } catch (error) {
