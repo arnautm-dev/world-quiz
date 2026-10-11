@@ -44,10 +44,10 @@ function getFeatureContinent(feature) {
 // Mountains and mountain ranges
 line("Atlas Mountains", 230, [[30.5, -9], [31.8, -6], [32.5, -2], [33.2, 1], [34, 5]]);
 line("Drakensberg Mountains", 170, [[-27, 29], [-29, 29.5], [-31, 29.3]]);
-point("Mount Kilimanjaro (highest in Africa)", -3.07, 37.35, 130);
+point("Mount Kilimanjaro", -3.07, 37.35, 130);
 point("Mount Kenya", -0.15, 37.3, 110);
-point("Mount Elbrus (highest in Europe)", 43.355, 42.439, 110);
-point("Mont Blanc (highest in Western Europe)", 45.8326, 6.8652, 90);
+point("Mount Elbrus", 43.355, 42.439, 110);
+point("Mont Blanc", 45.8326, 6.8652, 90);
 line("Alps", 240, [[44.2, 6.5], [45.5, 8], [46.5, 10], [47.5, 12.5]]);
 line("Pyrenees", 130, [[42.4, -2], [42.7, 0], [42.6, 2], [42.5, 3]]);
 line("Carpathian Mountains", 260, [[47.5, 18], [48.8, 22], [48.5, 25], [46.5, 25], [45, 22]]);
@@ -55,36 +55,38 @@ line("Apennine Mountains", 130, [[44.5, 10.5], [42.5, 13], [40, 15], [38, 16]]);
 line("Ural Mountains", 260, [[68, 66], [62, 60], [56, 59], [50, 59]]);
 line("Caucasus Mountains", 160, [[43, 40], [42.5, 43], [42.5, 46]]);
 line("Himalayas", 360, [[35, 74], [32, 79], [29, 85], [28, 91], [28, 97]]);
-point("Mount Everest (highest in Asia and the world)", 27.9881, 86.925, 110);
+point("Mount Everest", 27.9881, 86.925, 110);
 line("Karakoram Range", 170, [[37, 74], [35.5, 76], [35, 78]]);
 line("Hindu Kush", 180, [[36, 67], [35, 69], [34, 71]]);
 line("Tian Shan", 270, [[42, 70], [42, 76], [41, 82], [43, 88]]);
 line("Altai Mountains", 250, [[50, 84], [49, 89], [50, 94], [49, 98]]);
 line("Andes Mountains", 260, [[8, -72], [0, -77], [-10, -77], [-20, -68], [-32, -70], [-45, -73], [-55, -70]]);
-point("Aconcagua (highest in South America)", -32.65, -70.01, 120);
+point("Aconcagua", -32.65, -70.01, 120);
 line("Rocky Mountains", 280, [[60, -140], [55, -130], [49, -120], [44, -113], [39, -106], [33, -105]]);
-point("Denali (highest in North America)", 63.0695, -151.0074, 130);
+point("Denali", 63.0695, -151.0074, 130);
 line("Appalachian Mountains", 210, [[47, -68], [43, -72], [38, -80], [34, -83], [31, -85]]);
 line("Sierra Madre Occidental", 200, [[29, -109], [25, -107], [21, -104]]);
 line("Sierra Madre Oriental", 180, [[25, -99], [22, -99], [19, -97]]);
 line("Great Dividing Range", 240, [[-16, 145], [-21, 148], [-26, 152], [-31, 151], [-36, 149]]);
 line("Australian Alps", 130, [[-35, 148], [-36.5, 148.5], [-37.5, 147]]);
-point("Mount Kosciuszko (highest in mainland Australia)", -36.4559, 148.2636, 90);
-point("Puncak Jaya (highest in Oceania)", -4.0833, 137.1833, 100);
+point("Mount Kosciuszko", -36.4559, 148.2636, 90);
+point("Puncak Jaya", -4.0833, 137.1833, 100);
 line("Southern Alps", 150, [[-42, 172], [-43.5, 170], [-45, 168], [-46.5, 167]]);
 line("Transantarctic Mountains", 320, [[-75, 160], [-78, 170], [-80, -175], [-78, -160], [-76, -145]]);
-point("Vinson Massif (highest in Antarctica)", -78.525, -85.617, 100);
+point("Vinson Massif", -78.525, -85.617, 100);
 
 // Rivers
 currentCategory = "Rivers";
-line("Nile River (often cited as the world's longest)", 170, [[-3, 32], [0, 32.5], [4, 32], [9, 31], [15, 32.5], [22, 32.5], [27, 30.5], [30, 31]]);
-line("Congo River (Africa's greatest discharge)", 180, [[-11, 26], [-7, 25], [-4, 20], [0, 18], [-3, 16], [-6, 12]]);
+line("Nile River", 170, [[-3, 32], [0, 32.5], [4, 32], [9, 31], [15, 32.5], [22, 32.5], [27, 30.5], [30, 31]]);
+line("Congo River", 180, [[-11, 26], [-7, 25], [-4, 20], [0, 18], [-3, 16], [-6, 12]]);
 line("Niger River", 170, [[9, -10], [14, -4], [17, -3], [15, 1], [11, 5], [5, 6]]);
 line("Zambezi River", 150, [[-11, 24], [-15, 26], [-18, 26], [-18, 32], [-17, 35]]);
 line("Orange River", 140, [[-28, 28], [-29, 24], [-29, 20], [-28.5, 17]]);
 line("Senegal River", 120, [[13.5, -12], [15, -13], [16, -14], [16, -16]]);
-line("Volga River (longest in Europe)", 180, [[57, 33], [55, 38], [53, 46], [48, 47], [46, 48]]);
+line("Volga River", 180, [[57, 33], [55, 38], [53, 46], [48, 47], [46, 48]]);
 line("Danube River", 150, [[48, 8], [48, 14], [47, 18], [45, 22], [45, 27], [45, 29]]);
+line("Ebro River", 130, [[42.7, -2.1], [42.1, -1.1], [41.5, -0.3], [41.1, 0.7], [40.9, 1.2]]);
+line("Seine River", 110, [[47.8, 3.8], [48.1, 3.0], [48.5, 2.3], [49.0, 1.7], [49.4, 1.1], [49.4, 0.5], [49.2, -0.2]]);
 line("Rhine River", 100, [[46.5, 9], [47.5, 8], [49, 8], [51, 7], [52, 6]]);
 line("Rhône River", 90, [[46, 9.5], [45, 6], [44, 5], [43.3, 4.8]]);
 line("Elbe River", 100, [[50, 14], [51, 13], [52, 11], [53.5, 9]]);
@@ -92,7 +94,7 @@ line("Dnieper River", 140, [[55, 34], [53, 31], [51, 30], [48, 33], [46.5, 32]])
 line("Dniester River", 100, [[49, 25], [48, 27], [47, 29], [46, 30]]);
 line("Thames River", 55, [[51.7, -2], [51.5, -1], [51.5, 0.5]]);
 line("Po River", 75, [[45, 7], [45, 9], [45, 11], [45, 12]]);
-line("Yangtze River (longest in Asia)", 220, [[33, 96], [31, 95], [29, 95], [30, 103], [30, 109], [31, 113], [31, 121]]);
+line("Yangtze River", 220, [[33, 96], [31, 95], [29, 95], [30, 103], [30, 109], [31, 113], [31, 121]]);
 line("Ganges River", 190, [[30, 79], [29, 82], [27, 84], [26, 88], [22, 90]]);
 line("Indus River", 180, [[32, 78], [30, 72], [27, 68], [24, 67]]);
 line("Mekong River", 150, [[33, 95], [27, 101], [21, 101], [17, 102], [13, 105], [10, 106]]);
@@ -100,30 +102,30 @@ line("Yenisei River", 210, [[52, 93], [57, 92], [63, 88], [69, 84]]);
 line("Ob River", 210, [[52, 85], [57, 70], [62, 67], [68, 73]]);
 line("Lena River", 210, [[53, 105], [59, 116], [64, 127], [71, 128]]);
 line("Amur River", 180, [[53, 122], [50, 128], [48, 135], [48, 141]]);
-line("Huang He (Yellow River)", 160, [[35, 96], [37, 102], [40, 106], [38, 111], [37, 118]]);
+line("Huang He", 160, [[35, 96], [37, 102], [40, 106], [38, 111], [37, 118]]);
 line("Tigris River", 130, [[38, 39], [36, 43], [34, 44], [31, 47]]);
 line("Euphrates River", 150, [[39, 39], [36, 38], [34, 40], [32, 44], [31, 47]]);
-line("Amazon River (greatest discharge in the world)", 240, [[-5, -75], [-4, -70], [-3, -65], [-3, -60], [-1, -55], [0, -50]]);
-line("Mississippi–Missouri River system (longest in North America)", 200, [[46, -111], [45, -106], [42, -101], [39, -95], [38, -91], [33, -91], [29, -90]]);
+line("Amazon River", 240, [[-5, -75], [-4, -70], [-3, -65], [-3, -60], [-1, -55], [0, -50]]);
+line("Mississippi–Missouri River system", 200, [[46, -111], [45, -106], [42, -101], [39, -95], [38, -91], [33, -91], [29, -90]]);
 line("Mississippi River", 200, [[47, -95], [43, -91], [38, -91], [33, -91], [29, -90]]);
 line("Missouri River", 180, [[46, -111], [45, -106], [42, -101], [39, -95]]);
 line("Orinoco River", 150, [[7, -71], [8, -67], [8, -63], [9, -60]]);
 line("Paraná River", 170, [[-16, -48], [-20, -51], [-24, -54], [-29, -57], [-34, -58]]);
 line("Paraguay River", 130, [[-14, -57], [-19, -58], [-24, -57], [-28, -57]]);
-line("Rio Bravo (Rio Grande)", 120, [[37, -107], [32, -106], [29, -104], [27, -100], [26, -98]]);
+line("Rio Bravo", 120, [[37, -107], [32, -106], [29, -104], [27, -100], [26, -98]]);
 line("Yukon River", 170, [[64, -141], [64, -150], [63, -157], [62, -164]]);
 line("Mackenzie River", 180, [[61, -119], [64, -123], [67, -130], [69, -134]]);
 line("São Francisco River", 150, [[-14, -45], [-12, -44], [-10, -43], [-10, -36]]);
 line("Murray River", 130, [[-34, 141], [-35, 143], [-35, 146], [-36, 149]]);
 line("Darling River", 130, [[-26, 142], [-29, 144], [-32, 144], [-34, 143]]);
-line("Murray–Darling system (longest in Australia)", 180, [[-26, 142], [-29, 144], [-32, 144], [-34, 143], [-35, 141]]);
+line("Murray–Darling system", 180, [[-26, 142], [-29, 144], [-32, 144], [-34, 143], [-35, 141]]);
 line("Murrumbidgee River", 90, [[-35, 147], [-35.5, 145], [-35, 143]]);
 line("Sepik River", 85, [[-4, 141], [-4, 145], [-4.2, 147]]);
 line("Fly River", 90, [[-6, 141], [-7, 144], [-8.5, 146]]);
 
 // Lakes
 currentCategory = "Lakes";
-area("Lake Victoria (Africa's largest lake)", -1, 33, 190);
+area("Lake Victoria", -1, 33, 190);
 area("Lake Tanganyika", -6, 29.5, 110);
 area("Lake Malawi", -12, 34.5, 110);
 area("Lake Chad", 13, 14, 170);
@@ -133,10 +135,10 @@ area("Lake Onega", 62, 35.5, 115);
 area("Lake Vänern", 58.9, 13.5, 90);
 area("Lake Geneva", 46.4, 6.5, 75);
 area("Lake Balaton", 46.8, 17.5, 65);
-area("Lake Baikal (world's deepest lake)", 53.5, 108, 190);
+area("Lake Baikal", 53.5, 108, 190);
 area("Lake Balkhash", 46, 74, 180);
 area("Lake Issyk-Kul", 42.4, 77.2, 95);
-area("Lake Superior (largest freshwater lake by surface area)", 47.7, -87.5, 200);
+area("Lake Superior", 47.7, -87.5, 200);
 area("Lake Michigan", 44, -87, 170);
 area("Lake Huron", 45, -82.5, 160);
 area("Lake Erie", 42.2, -81.2, 120);
@@ -152,15 +154,15 @@ area("Lake Te Anau", -45.1, 167.7, 80);
 
 // Other physical geography highlights
 currentCategory = "Deserts";
-area("Sahara Desert (world's largest hot desert)", 23, 13, 750);
-area("Antarctic Desert (world's largest desert)", -80, 0, 1100);
-area("Atacama Desert (one of the world's driest regions)", -23.5, -69, 160);
+area("Sahara Desert", 23, 13, 750);
+area("Antarctic Desert", -80, 0, 1100);
+area("Atacama Desert", -23.5, -69, 160);
 area("Gobi Desert", 42, 105, 450);
 currentCategory = "Other features";
-point("Angel Falls (world's highest uninterrupted waterfall)", 5.967, -62.536, 100, true);
-point("Dead Sea (lowest exposed land elevation)", 31.5, 35.5, 70);
-landArea("Greenland (world's largest island)", 72, -40, 800);
-sea("Great Barrier Reef (world's largest coral reef system)", -18, 147, 450, "Oceania");
+point("Angel Falls", 5.967, -62.536, 100, true);
+point("Dead Sea", 31.5, 35.5, 70);
+landArea("Greenland", 72, -40, 800);
+sea("Great Barrier Reef", -18, 147, 450, "Oceania");
 
 // Seas
 currentCategory = "Seas and gulfs";
@@ -181,7 +183,7 @@ sea("Yellow Sea", 35, 123, 260);
 sea("Philippine Sea", 18, 137, 700);
 sea("Bering Sea", 58, -175, 500);
 sea("Sea of Okhotsk", 55, 150, 450);
-sea("Caspian Sea (world's largest lake)", 41, 51, 350);
+sea("Caspian Sea", 41, 51, 350);
 area("Aral Sea", 45, 60, 190);
 sea("Caribbean Sea", 15, -75, 650);
 sea("Labrador Sea", 58, -55, 420);
@@ -222,7 +224,7 @@ sea("Gulf of Papua", -9, 145, 170);
 
 // Peninsulas
 currentCategory = "Peninsulas";
-landArea("Somali Peninsula (Horn of Africa)", 8, 48, 430);
+landArea("Somali Peninsula", 8, 48, 430);
 landArea("Iberian Peninsula", 40, -4, 390);
 landArea("Italian Peninsula", 42, 13, 340);
 landArea("Balkan Peninsula", 41, 22, 390);
@@ -267,19 +269,20 @@ point("Drake Passage", -58, -65, 230, true);
 sea("Mozambique Channel", -17, 42, 300);
 
 const importantFeatureNames = new Set([
-  "Mount Kilimanjaro (highest in Africa)",
-  "Nile River (often cited as the world's longest)",
-  "Mount Elbrus (highest in Europe)",
-  "Volga River (longest in Europe)",
-  "Mount Everest (highest in Asia and the world)",
-  "Yangtze River (longest in Asia)",
-  "Aconcagua (highest in South America)",
-  "Amazon River (greatest discharge in the world)",
-  "Denali (highest in North America)",
-  "Mississippi–Missouri River system (longest in North America)",
-  "Puncak Jaya (highest in Oceania)",
-  "Murray–Darling system (longest in Australia)",
-  "Vinson Massif (highest in Antarctica)"
+  "Mount Kilimanjaro",
+  "Nile River",
+  "Mount Elbrus",
+  "Volga River",
+  "Danube River",
+  "Mount Everest",
+  "Yangtze River",
+  "Aconcagua",
+  "Amazon River",
+  "Denali",
+  "Mississippi–Missouri River system",
+  "Puncak Jaya",
+  "Murray–Darling system",
+  "Vinson Massif"
 ]);
 
 features.forEach(feature => {
