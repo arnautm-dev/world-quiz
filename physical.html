@@ -32,6 +32,10 @@
           <span class="legend-item"><span class="legend-dot answer" aria-hidden="true"></span>Feature location</span>
         </div>
         <div id="feedback" class="feedback physical-feedback" role="status" aria-live="polite"></div>
+        <div id="physicalDecisionButtons" class="decision-buttons">
+          <button id="acceptPhysicalGuess">✓ Count as correct</button>
+          <button id="rejectPhysicalGuess">✗ Count as incorrect</button>
+        </div>
         <button id="nextFeature" disabled>Next →</button>
         <div id="mapError" class="feedback wrong" role="alert"></div>
         <div class="physical-attribution">Map outlines: Natural Earth country data via geo-countries · Map library: Leaflet</div>
@@ -105,7 +109,7 @@
           <ol class="how-it-works">
             <li>Read the physical feature's name.</li>
             <li>Click its approximate location on the map.</li>
-            <li>Check the feedback and reveal the location.</li>
+            <li>Check the feedback and reveal the location. If your guess is within 1,000 km, choose whether it counts as correct.</li>
             <li>Press Next to continue through every feature.</li>
           </ol>
           <p class="small">Every feature appears once in a randomized order.</p>

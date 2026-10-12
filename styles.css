@@ -364,6 +364,14 @@ button:disabled {
   background: #3678b7;
 }
 
+.physical-page #acceptPhysicalGuess {
+  background: #26734d;
+}
+
+.physical-page #rejectPhysicalGuess {
+  background: #a52323;
+}
+
 .physical-page .physical-map-legend {
   display: flex;
   flex-wrap: wrap;

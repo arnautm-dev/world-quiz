@@ -307,11 +307,13 @@ let questionIndex = 0;
 let correctAnswers = 0;
 let incorrectAnswers = 0;
 let answered = false;
+let awaitingDecision = false;
 let landPolygons = [];
 
 const featureName = document.getElementById("featureName");
 const questionCount = document.getElementById("questionCount");
 const feedback = document.getElementById("feedback");
+const decisionButtons = document.getElementById("physicalDecisionButtons");
 const nextButton = document.getElementById("nextFeature");
 const mapError = document.getElementById("mapError");
 const progressFill = document.getElementById("progressFill");
@@ -370,9 +372,9 @@ function distanceToSegmentKm(pointLatLon, start, end) {
   return Math.hypot(a[0] + amount * segmentX, a[1] + amount * segmentY);
 }
 
-function distanceFromFeature(feature, position) {
+function distanceToFeatureKm(feature, position) {
   if (feature.type !== "line") {
-    return Math.max(0, distanceKm(position, feature.coordinates[0]) - feature.toleranceKm);
+    return distanceKm(position, feature.coordinates[0]);
   }
 
   let closest = Infinity;
@@ -380,7 +382,11 @@ function distanceFromFeature(feature, position) {
     closest = Math.min(closest,
       distanceToSegmentKm(position, feature.coordinates[i - 1], feature.coordinates[i]));
   }
-  return Math.max(0, closest - feature.toleranceKm);
+  return closest;
+}
+
+function distanceFromFeature(feature, position) {
+  return Math.max(0, distanceToFeatureKm(feature, position) - feature.toleranceKm);
 }
 
 function featureCenter(feature) {
@@ -515,9 +521,11 @@ function renderQuestion() {
   }
 
   answered = false;
+  awaitingDecision = false;
   clearAnswerMarkers();
   feedback.className = "feedback physical-feedback";
   feedback.textContent = "";
+  decisionButtons.style.display = "none";
   nextButton.disabled = true;
   nextButton.textContent = "Next →";
 
@@ -533,6 +541,7 @@ function handleMapClick(event) {
 
   const current = queue[questionIndex];
   const guess = [event.latlng.lat, event.latlng.lng];
+  const distanceToFeature = distanceToFeatureKm(current, guess);
   const distance = distanceFromFeature(current, guess);
   const landClickInWaterFeature = current.water && isOnLand(guess);
   const isCorrect = distance === 0 && !landClickInWaterFeature;
@@ -548,17 +557,30 @@ function handleMapClick(event) {
   }).addTo(markers);
 
   if (isCorrect) {
+    recordAnswer(true, "Correct! Your click was within the accepted answer zone.");
+  } else if (distanceToFeature < 1000) {
+    awaitingDecision = true;
+    feedback.className = "feedback partial physical-feedback";
+    feedback.textContent = `Your guess was close (${formatDistance(distanceToFeature)} from the feature). Should it count as correct?`;
+    decisionButtons.style.display = "flex";
+  } else {
+    recordAnswer(false, landClickInWaterFeature && distance === 0
+      ? "Incorrect. This feature is in the water, so click in the blue area around its location."
+      : `Incorrect. The feature is marked in green. Your click was ${formatDistance(distance)} from the accepted answer zone.`);
+  }
+}
+
+function recordAnswer(isCorrect, message) {
+  if (isCorrect) {
     correctAnswers += 1;
     feedback.className = "feedback correct physical-feedback";
-    feedback.textContent = "Correct! Your click was within the accepted answer zone.";
   } else {
     incorrectAnswers += 1;
     feedback.className = "feedback wrong physical-feedback";
-    feedback.textContent = landClickInWaterFeature && distance === 0
-      ? "Incorrect. This feature is in the water, so click in the blue area around its location."
-      : `Incorrect. The feature is marked in green. Your click was ${formatDistance(distance)} from the accepted answer zone.`;
   }
-
+  feedback.textContent = message;
+  awaitingDecision = false;
+  decisionButtons.style.display = "none";
   nextButton.disabled = false;
   if (questionIndex === queue.length - 1) nextButton.textContent = "See results →";
   updateStats();
@@ -653,6 +675,16 @@ nextButton.addEventListener("click", () => {
   if (!answered) return;
   questionIndex += 1;
   renderQuestion();
+});
+
+document.getElementById("acceptPhysicalGuess").addEventListener("click", () => {
+  if (!awaitingDecision) return;
+  recordAnswer(true, "Your guess has been counted as correct.");
+});
+
+document.getElementById("rejectPhysicalGuess").addEventListener("click", () => {
+  if (!awaitingDecision) return;
+  recordAnswer(false, "Your guess has been counted as incorrect.");
 });
 
 document.getElementById("playAgain").addEventListener("click", startQuiz);
