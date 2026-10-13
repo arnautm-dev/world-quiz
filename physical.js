@@ -5,6 +5,18 @@ function point(name, lat, lon, toleranceKm = 180, water = false) {
   features.push({ name, type: "point", category: currentCategory, coordinates: [[lat, lon]], toleranceKm, water });
 }
 
+function cape(name, lat, lon, continent) {
+  features.push({
+    name,
+    type: "point",
+    category: "Capes",
+    coordinates: [[lat, lon]],
+    toleranceKm: 120,
+    water: false,
+    continent
+  });
+}
+
 function area(name, lat, lon, toleranceKm) {
   features.push({ name, type: "area", category: currentCategory, coordinates: [[lat, lon]], toleranceKm, water: false });
 }
@@ -249,6 +261,22 @@ landArea("Paraguaná Peninsula", 11.8, -69.8, 100);
 landArea("Cape York Peninsula", -14, 143, 260);
 landArea("Eyre Peninsula", -33, 135, 170);
 landArea("Antarctic Peninsula", -68, -64, 260);
+
+// Capes
+cape("Cape of Good Hope", -34.35, 18.48, "Africa");
+cape("Cape Guardafui", 11.83, 51.26, "Africa");
+cape("North Cape", 71.17, 25.78, "Europe");
+cape("Cape Finisterre", 42.88, -9.27, "Europe");
+cape("Cape Chelyuskin", 77.72, 104.3, "Asia");
+cape("Cape Dezhnev", 66.08, -169.67, "Asia");
+cape("Cape Prince of Wales", 65.6, -168.1, "North America");
+cape("Cape Hatteras", 35.25, -75.53, "North America");
+cape("Cape Horn", -55.98, -67.27, "South America");
+cape("Punta Gallinas", 12.45, -71.67, "South America");
+cape("Cape York", -10.7, 142.5, "Oceania");
+cape("Cape Leeuwin", -34.37, 115.14, "Oceania");
+cape("Cape Adare", -71.3, 170.2, "Antarctica");
+cape("Cape Evans", -77.63, 166.4, "Antarctica");
 
 // Straits and canals
 currentCategory = "Straits and canals";
